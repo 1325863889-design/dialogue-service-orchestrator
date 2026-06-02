@@ -1,0 +1,33 @@
+﻿pip install时，根据setup.py的 entry_points 生成命令行可执行文件
+	=》 anaconda3\envs\dialogue_runtime\Scrips下会生成atguigu.exe
+	   元数据：dialogue_runtime.egg-info/entry_points.txt
+		[console_scripts]
+		atguigu = dialogue_runtime.cli:main
+		=》 安装后自动生成一个系统命令：atguigu
+		   在命令行运行 atguigu 时，本质等价于执行：
+				from dialogue_runtime.cli import main
+				main()
+
+@click.group 把 cli 函数变成“命令组”，类似一个根命令： atguigu <子命令> [选项]
+@click.option [选项]
+
+
+@click.command("run") 把这个函数注册为子命令 run
+cli.add_command(run_command)，就把它挂在了根 group cli 下
+于是命令变成：atguigu run ...
+
+
+
+
+使用中的接口：
+/api/stream - inspect.html 中的核心通信通道，负责所有消息收发
+/api/tracker/{session_id}/full - inspect.html 定时刷新调用，展示 tracker 完整状态
+/api/flows - inspect.html 加载所有 flow 定义，用于渲染 Mermaid 流程图
+/inspect - 调试页面 HTML 入口
+/docs - FastAPI 内置文档（在命令行提示中引用）
+
+未使用的接口：
+/api/messages - 设计为 REST 风格的消息接口，但 inspect 页面完全使用 WebSocket
+/api/sessions/{id} 和 /api/sessions/{id}/reset - 会话管理接口，未被任何前端调用
+/api/domain - Domain 配置查询接口，未被使用
+/health 和 / - 健康检查接口，CLI 中未调用，外部监控也未配置

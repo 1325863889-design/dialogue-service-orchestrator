@@ -1,0 +1,77 @@
+1、 以如下为例
+
+>>> 配置文件
+version: "3.1"
+
+flows:
+  switch_user_id:
+    name: 切换账号
+    description: 切换账号、切换用户、更换用户ID
+    persisted_slots:
+      - user_id
+    steps:
+      - collect: user_id
+        description: 用户id
+        ask_before_filling: true
+        next: END
+
+>>> safe_load后：
+data = {
+    "version": "3.1",
+    "flows": {
+        "switch_user_id": {
+            "name": "切换账号",
+            "description": "切换账号、切换用户、更换用户ID",
+            "persisted_slots": ["user_id"],
+            "steps": [
+                {
+                    "collect": "user_id",
+                    "description": "用户id",
+                    "ask_before_filling": True,
+                    "next": "END",
+                }
+            ],
+        },
+        ...
+    },
+}
+
+>>> 所以steps_data
+steps_data = flow_config.get("steps", [])
+# steps_data == [
+#   {
+#     "collect": "user_id",
+#     "description": "用户id",
+#     "ask_before_filling": True,
+#     "next": "END",
+#   }
+# ]
+
+
+2、带条件列表 + 嵌套动作
+- collect: order_id  # button展示给用户，用户选择一个订单
+  next:
+    - if: slots.order_id != "false"
+      then:
+        - action: action_get_order_detail
+          next: END
+    - else: END
+
+
+step_data = {
+    "collect": "order_id",
+    "next": [
+        {
+            "if": "slots.order_id != \"false\"",
+            "then": [
+                {
+                    "action": "action_get_order_detail",
+                    "next": "END",
+                }
+            ],
+        },
+        {
+            "else": "END",
+        },
+    ],
+}
